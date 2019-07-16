@@ -5,6 +5,8 @@ def faceDetect() :
     face_cascade = cv2.CascadeClassifier("C:/Users/User/PycharmProjects/edge/venv/Lib/site-packages/cv2/data/haarcascade_frontalface_default.xml")
     eye_cascade = cv2.CascadeClassifier("C:/Users/User/PycharmProjects/edge/venv/Lib/site-packages/cv2/data/haarcascade_eye.xml")
 
+    count = 0
+
     try :
         cam = cv2.VideoCapture(0)
         cam.set(3, 300)  # WIDTH
@@ -30,10 +32,12 @@ def faceDetect() :
             roi_gray = gray[y:y + h, x:x + w]
             roi_color = gray[y:y + h, x:x + w]
             eyes = eye_cascade.detectMultiScale(roi_gray)
+            print("< frame %d >" % count)
             print("얼굴 갯수 : ", len(faces))
             for (ex, ey, ew, eh) in eyes:
                 cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 127, 255), 2)
             print("눈 갯수 : ", len(eyes))
+            count += 1
 
         #화면에 출력
         cv2.imshow('posture',frame)
