@@ -23,23 +23,17 @@ def faceDetect() :
             scaleFactor=1.2,
             minNeighbors=5
         )
-        eyes = eye_cascade.detectMultiScale(
-            gray,
-            scaleFactor=1.2,
-            minNeighbors=5
-        )
 
-        #인식된 얼굴과 눈의 갯수 출력
-        print("얼굴 갯수 : ",len(faces))
-        print("눈 갯수 : ",len(eyes))
-
-        #인식된 얼굴에 사각형 출력
-        for (x,y,w,h) in faces :
-            cv2.rectangle(frame, (x,y),(x+y,y+h),(255,0,0),2)
-
-        #인식된 눈에 사각형 출력
-        for (x,y,w,h) in eyes :
-            cv2.rectangle(frame, (x,y),(x+y,y+h),(255,0,0),2)
+        # 인식된 얼굴에 사각형 출력
+        for (x, y, w, h) in faces:
+            cv2.rectangle(gray, (x, y), (x + w, y + h), (255, 255, 0), 2)
+            roi_gray = gray[y:y + h, x:x + w]
+            roi_color = gray[y:y + h, x:x + w]
+            eyes = eye_cascade.detectMultiScale(roi_gray)
+            print("얼굴 갯수 : ", len(faces))
+            for (ex, ey, ew, eh) in eyes:
+                cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 127, 255), 2)
+            print("눈 갯수 : ", len(eyes))
 
         #화면에 출력
         cv2.imshow('posture',frame)
