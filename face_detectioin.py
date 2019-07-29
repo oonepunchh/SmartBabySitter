@@ -26,7 +26,7 @@ def shape_to_numpy_array(shape, dtype="int"):
     # loop over the 68 facial landmarks and convert them
     coordinates = np.zeros((68, 2), dtype=dtype)
     # to a 2-tuple of (x, y)-coordinates
-    for i in range(0, 68):
+    for i in range(36, 48):
         coordinates[i] = (shape.part(i).x, shape.part(i).y)
 
     # return the list of (x, y)-coordinates
@@ -57,20 +57,6 @@ def visualize_facial_landmarks(image, shape, colors=None, alpha=0.75):
         pts = shape[j:k]
         facial_features_cordinates[name] = pts
 
-        # check if are supposed to draw the jawline
-        if name == "Jaw":
-            # since the jawline is a non-enclosed facial region,
-            # just draw lines between the (x, y)-coordinates
-            for l in range(1, len(pts)):
-                ptA = tuple(pts[l - 1])
-                ptB = tuple(pts[l])
-                cv2.line(overlay, ptA, ptB, colors[i], 2)
-
-        # otherwise, compute the convex hull of the facial
-        # landmark coordinates points and display it
-        else:
-            hull = cv2.convexHull(pts)
-            cv2.drawContours(overlay, [hull], -1, colors[i], -1)
 
     # apply the transparent overlay
     cv2.addWeighted(overlay, alpha, output, 1 - alpha, 0, output)
