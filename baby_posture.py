@@ -1,10 +1,4 @@
-from collections import OrderedDict
-import numpy as np
 import cv2
-import argparse
-import dlib
-import imutils
-
 
 def faceDetect() :
 
