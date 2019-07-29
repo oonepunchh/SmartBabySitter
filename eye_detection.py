@@ -1,70 +1,77 @@
 from imutils.video import VideoStream
 from imutils import face_utils
-import numpy as np
 import argparse
-import time
 import imutils
+import time
 import dlib
 import cv2
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-p", "--shape-predictor", required=True,
-	help="path to facial landmark predictor")
-ap.add_argument("-w", "--webcam", type=int, default=0,
-	help="index of webcam on system")
+   help="path to facial landmark predictor")
 args = vars(ap.parse_args())
 
-# initialize dlib's face detector (HOG-based) and then create
-# the facial landmark predictor
+# initialize dlib's face detector (HOG-based) and then create the
+# facial landmark predictor
+print("[INFO] loading facial landmark predictor...")
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(args["shape_predictor"])
 
-#영상 읽어오기
-vs = VideoStream(src=args["webcam"]).start()
-#vs = VideoStream(usePiCamera=True).start() #라즈베리파이 카메라 사용할 때 쓸 코드
+# initialize the video stream and sleep for a bit, allowing the
+# camera sensor to warm up
+print("[INFO] camera sensor warming up...")
+vs = VideoStream(0).start()
+# vs = VideoStream(usePiCamera=True).start() # Raspberry Pi
+time.sleep(2.0)
 
-# load the input image, resize it, and convert it to grayscale
-frame = vs.read()
-image = cv2.imread(frame)
-print("error")
-image = imutils.resize(image, width=500)
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+# loop over the frames from the video stream
+while True:
+    # grab the frame from the threaded video stream, resize it to
+    # have a maximum width of 400 pixels, and convert it to
+    # grayscale
+    frame = vs.read()
+    frame = imutils.resize(frame, width=400)
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-# detect faces in the grayscale image
-rects = detector(gray, 1)
+    # detect faces in the grayscale frame
+    rects = detector(gray, 0)
 
-# loop over the face detections
-for (i, rect) in enumerate(rects):
-	# determine the facial landmarks for the face region, then
-	# convert the landmark (x, y)-coordinates to a NumPy array
-	shape = predictor(gray, rect)
-	shape = face_utils.shape_to_np(shape)
+    # check to see if a face was detected, and if so, draw the total
+    # number of faces on the frame
+    if len(rects) > 0:
+        text = "{} face(s) found".format(len(rects))
+        cv2.putText(frame, text, (10, 20), cv2.FONT_HERSHEY_SIMPLEX,
+                    0.5, (0, 0, 255), 2)
 
-	# loop over the face parts individually
-	for (name, (i, j)) in face_utils.FACIAL_LANDMARKS_IDXS.items():
-		# clone the original image so we can draw on it, then
-		# display the name of the face part on the image
-		clone = image.copy()
-		cv2.putText(clone, name, (10, 30), cv2.FONT_HERSHEY_SIMPLEX,
-			0.7, (0, 0, 255), 2)
+    for rect in rects:
+        # compute the bounding box of the face and draw it on the
+        # frame
+        (bX, bY, bW, bH) = face_utils.rect_to_bb(rect)
+        cv2.rectangle(frame, (bX, bY), (bX + bW, bY + bH),
+                      (0, 255, 0), 1)
 
-		# loop over the subset of facial landmarks, drawing the
-		# specific face part
-		for (x, y) in shape[i:j]:
-			cv2.circle(clone, (x, y), 1, (0, 0, 255), -1)
+        # determine the facial landmarks for the face region, then
+        # convert the facial landmark (x, y)-coordinates to a NumPy
+        # array
+        shape = predictor(gray, rect)
+        shape = face_utils.shape_to_np(shape)
 
-		# extract the ROI of the face region as a separate image
-		(x, y, w, h) = cv2.boundingRect(np.array([shape[i:j]]))
-		roi = image[y:y + h, x:x + w]
-		roi = imutils.resize(roi, width=250, inter=cv2.INTER_CUBIC)
+        # loop over the (x, y)-coordinates for the facial landmarks
+        # and draw each of them
+        for (i, (x, y)) in enumerate(shape):
+            cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
+            cv2.putText(frame, str(i + 1), (x - 10, y - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
 
-		# show the particular face part
-		cv2.imshow("ROI", roi)
-		cv2.imshow("Image", clone)
-		cv2.waitKey(0)
+        # show the frame
+        cv2.imshow("Frame", frame)
+        key = cv2.waitKey(1) & 0xFF
 
-	# visualize all facial landmarks with a transparent overlay
-	output = face_utils.visualize_facial_landmarks(image, shape)
-	cv2.imshow("Image", output)
-	cv2.waitKey(0)
+        # if the `q` key was pressed, break from the loop
+        if key == ord("q"):
+             break
+
+# do a bit of cleanup
+cv2.destroyAllWindows()
+vs.stop()
