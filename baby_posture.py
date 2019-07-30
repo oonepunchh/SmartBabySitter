@@ -1,24 +1,22 @@
 import cv2
 
-def faceDetect() :
+def faceDetect():
 
-    face_cascade = cv2.CascadeClassifier("C:/Users/User/PycharmProjects/edge/venv/Lib/site-packages/cv2/data/haarcascade_frontalface_default.xml")
-    eye_cascade = cv2.CascadeClassifier("C:/Users/User/PycharmProjects/edge/venv/Lib/site-packages/cv2/data/haarcascade_eye.xml")
-    left = cv2.CascadeClassifier("C:/Users/User/Anaconda3/Lib/site-packages/cv2/data/haarcascade_lefteye_2splits.xml")
-    right = cv2.CascadeClassifier("C:/Users/User/Anaconda3/Lib/site-packages/cv2/data/haarcascade_righteye_2splits.xml")
+    face_cascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
+    left_eye_detector = cv2.CascadeClassifier("haarcascade_lefteye_2splits.xml")
+    right_eye_detector = cv2.CascadeClassifier("haarcascade_righteye_2splits.xml")
 
     count = 0
 
-    try :
+    try:
         cam = cv2.VideoCapture(0)
         cam.set(3, 300)  # WIDTH
         cam.set(4, 400)  # HEIGHT
-    except :
+    except:
         print("camera loading error")
         return
 
-    while True :
-        #frame별로 캡쳐
+    while cam.read(True):
         ret, frame = cam.read()
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -28,30 +26,53 @@ def faceDetect() :
             minNeighbors=5
         )
 
-        # 인식된 얼굴에 사각형 출력
         for (x, y, w, h) in faces:
+            #left_face = frame[y:y + h, x + int(w / 2):x + w]
+            left_face_gray = gray[y:y + h, x + int(w / 2):x + w]
+
+            #right_face = frame[y:y + h, x:x + int(w / 2)]
+            right_face_gray = gray[y:y + h, x:x + int(w / 2)]
+
+            # Detect the left eye
+            left_eye = left_eye_detector.detectMultiScale(
+                left_face_gray,
+                scaleFactor=1.1,
+                minNeighbors=5,
+                minSize=(30, 30),
+                flags=cv2.CASCADE_SCALE_IMAGE
+            )
+
+            # Detect the right eye
+            right_eye = right_eye_detector.detectMultiScale(
+                right_face_gray,
+                scaleFactor=1.1,
+                minNeighbors=5,
+                minSize=(30, 30),
+                flags=cv2.CASCADE_SCALE_IMAGE
+            )
+
             cv2.rectangle(gray, (x, y), (x + w, y + h), (255, 255, 0), 2)
-            roi_gray = gray[y:y + h, x:x + w]
+            #roi_gray = gray[y:y + h, x:x + w]
             roi_color = gray[y:y + h, x:x + w]
-            #eyes = eye_cascade.detectMultiScale(roi_gray)
-            left_eye = left.detectMultiScale(roi_gray)
-            right_eye = right.detectMultiScale(roi_gray)
 
             print("< frame %d >" % count)
-            print("얼굴 갯수 : ", len(faces))
-            #for (ex, ey, ew, eh) in eyes:
-            #    cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 127, 255), 2)
+
             for (ex, ey, ew, eh) in left_eye:
                 cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 127, 255), 2)
             for (ex, ey, ew, eh) in right_eye:
                 cv2.rectangle(roi_color, (ex, ey), (ex + ew, ey + eh), (0, 127, 255), 2)
-            print("왼쪽 눈 : ", len(left_eye))
-            print("오른쪽 눈 : ", len(left_eye))
-            #print("눈 : ",len(eyes))
+
             count += 1
 
-        #화면에 출력
+        if (len(left_eye) == 0 | len(right_eye) == 0):
+            print("고개 돌아감")
+        elif (len(left_eye) == 1 & len(right_eye) == 1):
+            print("고개 정면")
+        else:
+            print("고개 돌아감")
+
         cv2.imshow('posture',frame)
+
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
