@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 
 def showVideo() :
     try :
@@ -15,6 +16,8 @@ def showVideo() :
         #cap.read = 비디오 한 프레임씩 읽어서
         #비디오 프레임 제대로 읽히면 ret = True / 실패시 ret = False
         ret, frame = vidcap.read()
+        height, width, channel = frame.shape
+        frame_gray = np.zeros((height,width),np.uint8)
 
         if not ret :
             print('video read error')
@@ -27,7 +30,7 @@ def showVideo() :
         canny = cv2.Canny(gray,50,200)
 
         # 캡쳐된 이미지 저장
-        cv2.imwrite("C:/Users/User/Desktop/python/frame%d.jpg" % count, canny)
+        cv2.imwrite("C:/Users/Admin/Desktop/python/frame%d.jpg" % count, canny)
         print('Saved frame %d.jpg' % count)
         count += 1
 
