@@ -32,12 +32,13 @@ def showVideo() :
         # 캡쳐된 이미지 저장
         cv2.imwrite("C:/Users/Admin/Desktop/python/frame%d.jpg" % count, canny)
         print('Saved frame %d.jpg' % count)
+
         count += 1
 
         cv2.imshow('video',gray)
 
         k = cv2.waitKey(1) & 0xFF
-        if k == 27 : # 여기서 27이 뭔지를 모르겠는데 아마 q or esc키 일듯함.. i dont know..
+        if k == 27 :
             break
     vidcap.release() #오픈한 vidcap객체에 대한 해제
     vidcap.destroyAllWindows() #모든 윈도우 제거
