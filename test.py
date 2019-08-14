@@ -3,35 +3,27 @@ import numpy as np
 import time
 
 def pixel():
+    start = time.time()
+    image = cv2.imread("/mnt/c/Users/Admin/Desktop/python/frame0.jpg")
+    image2 = cv2.imread("/mnt/c/Users/Admin/Desktop/python/frame80.jpg")
 
-    image = cv2.imread("C:/Users/Admin/Desktop/python/frame0.jpg")
-    image2 = cv2.imread("C:/Users/Admin/Desktop/python/frame1.jpg")
+    gray1 = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray2 = cv2.cvtColor(image2, cv2.COLOR_BGR2GRAY)
 
+    diff_frame = gray2 - gray1
+    diff_frame -= diff_frame.min()
+    disp_frame = np.uint8(255.0*diff_frame/float(diff_frame.max()))
+
+    print(disp_frame)
+    print("--")
     count = 0
-    arr2 = [255, 255, 255]
-    arr1 = [0, 0, 0]
-
-    for i in range (int(len(image) / 3), int(len(image) * 2/3)):
-        for j in range (int(len(image[0]) / 3), int(len(image[0]) * 2/3)):
-
-
-            if image[i,j][0] < 10:
-                image[i,j] = np.array(arr1)
-            if image2[i,j][0] < 10:
-                image2[i,j] = np.array(arr1)
-
-
-            if (image[i,j][0] > 250) & (image[i,j][1] > 250) & (image[i,j][2] > 250) :
-               image[i,j] = np.array(arr2)
-
-            if (image2[i,j][0] > 250) & (image2[i,j][1] > 250) & (image2[i,j][2] > 250) :
-               image2[i,j] = np.array(arr2)
-
-            if str(image[i,j]) != str(image2[i,j]):
-                #print("다름")
+    for i in range (int(len(disp_frame))) :
+        for j in range (int(len(disp_frame[0]))) :
+            if (int(disp_frame[i][j])) == 255 :
                 count+=1
-                #print(str(image[i,j]) + " & " + str(image2[i,j]))
     print(count)
+    print(time.time() - start)
+    print(cv2.__version__)
 pixel()
 cv2.destroyAllWindows()
 
