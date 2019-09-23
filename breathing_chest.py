@@ -1,5 +1,7 @@
 import cv2
 import numpy as np
+import os
+import subprocess
 
 def showVideo() :
     try :
@@ -27,10 +29,11 @@ def showVideo() :
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
         # Canny 에지 검출기 (Edge검출)
-        canny = cv2.Canny(gray,50,200)
+        canny = cv2.Canny(gray, 50, 200)
+
 
         # 캡쳐된 이미지 저장
-        cv2.imwrite("C:/Users/Admin/Desktop/python/frame%d.jpg" % count, canny)
+        cv2.imwrite("C:/Users/admin/Desktop/HSEC/darknet-master/darknet-master/build/darknet/x64/python/frame%d.jpg" % count, gray)
         print('Saved frame %d.jpg' % count)
 
         count += 1

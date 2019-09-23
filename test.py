@@ -4,8 +4,8 @@ import time
 
 def pixel():
 
-    image = cv2.imread("C:/Users/Admin/Desktop/python/frame0.jpg")
-    image2 = cv2.imread("C:/Users/Admin/Desktop/python/frame1.jpg")
+    image = cv2.imread("C:/Users/admin/Desktop/frame0.png")
+    image2 = cv2.imread("C:/Users/admin/Desktopframe1.png")
 
     count = 0
     arr2 = [255, 255, 255]
@@ -28,7 +28,7 @@ def pixel():
                image2[i,j] = np.array(arr2)
 
             if str(image[i,j]) != str(image2[i,j]):
-                #print("다름")
+                print("다름")
                 count+=1
                 #print(str(image[i,j]) + " & " + str(image2[i,j]))
     print(count)

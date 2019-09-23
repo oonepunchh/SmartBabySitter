@@ -64,12 +64,12 @@ def faceDetect():
 
             count += 1
 
-        if (len(left_eye) == 0 | len(right_eye) == 0):
-            print("고개 돌아감")
-        elif (len(left_eye) == 1 & len(right_eye) == 1):
-            print("고개 정면")
-        else:
-            print("고개 돌아감")
+            if (len(left_eye) == 0 | len(right_eye) == 0):
+                print("고개 돌아감")
+            elif (len(left_eye) == 1 & len(right_eye) == 1):
+                print("고개 정면")
+            else:
+                print("고개 돌아감")
 
         cv2.imshow('posture',frame)
 
