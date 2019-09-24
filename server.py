@@ -48,20 +48,22 @@ def background_thread() :
         # input_s = arduino.readline()
         #degree = int(input_s)
         # txt-file read
-        r = open('C:/Users/admin/Desktop/HSEC/darknet-master/darknet-master/build/darknet/status.txt', mode='rt',encoding='utf-8')
+        r = open('status.txt', mode='rt',encoding='utf-8')
         posture = r.read()
         breathing = extractEdge()
 
         db.update({"posture": posture})
         db.update({"breathing": breathing})
         db.update({"degree": degree})
+
         if posture == "down" :
             warning()
         elif breathing == "False" :
             warning()
         elif degree > 38 :
             warning()
-        r.seek(0)
+        else :
+            continue
         time.sleep(1)
 
 
