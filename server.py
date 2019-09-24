@@ -1,8 +1,12 @@
 from flask import *
 import pyrebase
-import time
 import threading
-import serial
+#import serial
+import firebase_admin
+from firebase_admin import messaging
+from firebase_admin import credentials
+from breathing_chest import *
+import time
 
 config = {
     "apiKey": "AIzaSyCfvGXaZ_ltapjHIfByHOxTEMoD8UY3wGY",
@@ -17,26 +21,46 @@ config = {
 firebase = pyrebase.initialize_app(config)
 db = firebase.database()
 
+cred = credentials.Certificate('service-account.json')
+default_app = firebase_admin.initialize_app(cred)
+
 app = Flask(__name__)
+
+def warning() :
+    topic = 'test'
+    message = messaging.Message(
+        data={
+            'warning': 'warning'
+        },
+        topic=topic
+    )
+    response = messaging.send(message)
+    return response
 
 #Thread
 def background_thread() :
     # get value from arduino
-    arduino = serial.Serial('COM3', 9600)
-    arduino.flushInput()
+    #arduino = serial.Serial('COM3', 9600)
+    #arduino.flushInput()
     count = 0
-    r = open('C:/Users/admin/Desktop/HSEC/darknet-master/darknet-master/build/darknet/x64/status/status.txt', mode='rt', encoding='utf-8')
-    breathing = True
-
-    #degree = input
+    degree = 30 #input
     while True :
-        input_s = arduino.readline()
-        degree = int(input_s)
+        # input_s = arduino.readline()
+        #degree = int(input_s)
         # txt-file read
+        r = open('C:/Users/admin/Desktop/HSEC/darknet-master/darknet-master/build/darknet/status.txt', mode='rt',encoding='utf-8')
         posture = r.read()
+        breathing = extractEdge()
+
         db.update({"posture": posture})
         db.update({"breathing": breathing})
         db.update({"degree": degree})
+        if posture == "down" :
+            warning()
+        elif breathing == "False" :
+            warning()
+        elif degree > 38 :
+            warning()
         r.seek(0)
         time.sleep(1)
 
@@ -47,7 +71,6 @@ def main() :
     global thread
     thread = threading.Thread(target=background_thread())
     thread.start()
-    return render_template('index.html')
 
 if __name__ == "__main__" :
     app.run(debug=True)
