@@ -2,9 +2,61 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Smart Baby Sitter</title>
+    <style>
+        body {
+            align : center;
+            background-color : #FFECB9;
+        }
+        #video {
+            display : block;
+            margin-left : auto;
+            margin-right : auto;
+            width : 35%;
+        }
+        .inline-block {
+            display : inline-block;
+            margin-left : auto;
+            margin-right : auto;
+            text-align : center;
+        }
+        .icon {
+            width : 35%;
+        }
+    </style>
 </head>
 <body>
-
+    <script src="https://www.gstatic.com/firebasejs/5.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.10.1/firebase-database.js"></script>
+    <img id="video" src="http://192.168.0.18:8090/?action=stream" />
+    <div style="text-align : center;">
+        <div class="inline-block">
+            <p>호흡 여부</p>
+            <img class="icon" src="{{url_for('static', filename='image/breating.png')}}"/>
+            <p id="breathing">true</p>
+        </div>
+        <div class="inline-block">
+            <p>현재 자세</p>
+            <img class="icon" src="{{url_for('static', filename='image/posture.png')}}"/>
+            <p id="posture">true</p>
+        </div>
+    </div>
+    <script>
+        var config = {
+            "apiKey": "AIzaSyCfvGXaZ_ltapjHIfByHOxTEMoD8UY3wGY",
+            "authDomain": "smart-baby-sitter.firebaseapp.com",
+            "databaseURL": "https://smart-baby-sitter.firebaseio.com",
+            "projectId": "smart-baby-sitter",
+            "storageBucket": "smart-baby-sitter.appspot.com",
+            "messagingSenderId": "1022295587743",
+            "appId": "1:1022295587743:web:a5c2e278ad7b38c9efdbaa"
+        };
+        firebase.initializeApp(config);
+        var database = firebase.database();
+        database.ref('/').on('value', function(snapshot) {
+            document.getElementById('breathing').innerHTML = snapshot.val().breathing
+            document.getElementById('posture').innerHTML = snapshot.val().posture
+        });
+    </script>
 </body>
 </html>

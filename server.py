@@ -1,7 +1,6 @@
-from flask import *
+from flask import Flask, render_template
 import pyrebase
 import threading
-#import serial
 import firebase_admin
 from firebase_admin import messaging
 from firebase_admin import credentials
@@ -39,40 +38,34 @@ def warning() :
 
 #Thread
 def background_thread() :
-    # get value from arduino
-    #arduino = serial.Serial('COM3', 9600)
-    #arduino.flushInput()
-    count = 0
-    degree = 30 #input
     while True :
-        # input_s = arduino.readline()
-        #degree = int(input_s)
         # txt-file read
-        r = open('status.txt', mode='rt',encoding='utf-8')
+        r = open('C:/Users/Admin/Desktop/HSEC/darknet-master/build/darknet/x64/results/status.txt', mode='rt',encoding='utf-8')
         posture = r.read()
         breathing = extractEdge()
 
         db.update({"posture": posture})
         db.update({"breathing": breathing})
-        db.update({"degree": degree})
 
-        if posture == "down" :
+        if posture == "down":
             warning()
-        elif breathing == "False" :
-            warning()
-        elif degree > 38 :
+        elif breathing == "False":
             warning()
         else :
             continue
+
         time.sleep(1)
-
-
 #server
-@app.route('/', methods=['GET','POST'])
-def main() :
+@app.route('/')
+def main():
     global thread
     thread = threading.Thread(target=background_thread())
-    thread.start()
+    #thread.start()
+    return render_template("index.html")
+
+@app.route('/index')
+def index():
+    return render_template("index.html")
 
 if __name__ == "__main__" :
     app.run(debug=True)
